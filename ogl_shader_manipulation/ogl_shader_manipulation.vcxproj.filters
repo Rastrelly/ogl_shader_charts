@@ -30,4 +30,7 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitattributes" />
+  </ItemGroup>
 </Project>
