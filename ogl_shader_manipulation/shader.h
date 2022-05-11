@@ -1,6 +1,10 @@
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -8,6 +12,7 @@
 #include <iostream>
 
 #include <ctime>
+#include <vector>
 
 
 class Shader
@@ -30,6 +35,8 @@ public:
 	void setFloat(const std::string &name, float value) const;
 	// ------------------------------------------------------------------------
 	void setVector4f(const std::string &name, float valuex, float valuey, float valuez, float valuew);
+	// ------------------------------------------------------------------------
+	void setMatrix4f(const std::string &name, glm::mat4 projection);
 
 private:
 	// utility function for checking shader compilation/linking errors.

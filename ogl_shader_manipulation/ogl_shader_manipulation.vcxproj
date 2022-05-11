@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\GLFW\include;C:\CPPLIBS\glad\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\CPPLIBS\glm-0.9.9.8\glm;C:\Program Files %28x86%29\GLFW\include;C:\CPPLIBS\glad\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GLFW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
