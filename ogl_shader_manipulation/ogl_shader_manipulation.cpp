@@ -170,9 +170,120 @@ void PrepShaders(const char* vertexPath, const char* fragmentPath)
 	shad->setMatrix4f("projection",proj);
 }
 
+void drawLine(float x1, float y1, float x2, float y2, bool axis)
+{
+
+	float lineverts[] = { x1, y1, 0.0f, x2, y2, 0.0f };
+	shad->setBool("isBgColor", true);
+	shad->setBool("isAxis", axis);
+	//1.2 - заповнюємо вершинний масив
+	glGenBuffers(1, &VBO); //генерація вершинного буфера
+	glBindBuffer(GL_ARRAY_BUFFER, VBO); // вказання типу буфера (буфер масиву)
+	glBufferData(GL_ARRAY_BUFFER, // передача буферу
+		sizeof(float)*6,		//розміром з наш масив вершин	
+		lineverts,				//нашого масиву вершин
+		GL_STATIC_DRAW);		//в статичному режимі
+
+	/*
+	GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
+	GL_STATIC_DRAW: the data is set only once and used many times.
+	GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
+	*/
+
+	// 2 - Генерація вершинного масиву
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	//призначаємо атрибути вершин
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	/*
+	- The first parameter specifies which vertex attribute we want to configure. Remember that we specified the location of the position vertex attribute in the vertex shader with layout (location = 0). This sets the location of the vertex attribute to 0 and since we want to pass data to this vertex attribute, we pass in 0.
+	- The next argument specifies the size of the vertex attribute. The vertex attribute is a vec3 so it is composed of 3 values.
+	- The third argument specifies the type of the data which is GL_FLOAT (a vec* in GLSL consists of floating point values).
+	- The next argument specifies if we want the data to be normalized. If we're inputting integer data types (int, byte) and we've set this to GL_TRUE, the integer data is normalized to 0 (or -1 for signed data) and 1 when converted to float. This is not relevant for us so we'll leave this at GL_FALSE.
+	- The fifth argument is known as the stride and tells us the space between consecutive vertex attributes. Since the next set of position data is located exactly 3 times the size of a float away we specify that value as the stride. Note that since we know that the array is tightly packed (there is no space between the next vertex attribute value) we could've also specified the stride as 0 to let OpenGL determine the stride (this only works when values are tightly packed). Whenever we have more vertex attributes we have to carefully define the spacing between each vertex attribute but we'll get to see more examples of that later on.
+	- The last parameter is of type void* and thus requires that weird cast. This is the offset of where the position data begins in the buffer. Since the position data is at the start of the data array this value is just 0. We will explore this parameter in more detail later on
+	*/
+
+	// 3 - Відмальовка
+	glDrawArrays(GL_LINES, 0, 6);
+
+	// 4 - Відключаємо вершинний масив
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+
+	shad->setBool("isBgColor", false);
+}
+
+
+int nsteps(float min, float max, float dlt)
+{
+	return int(((max-min)/dlt));
+}
 
 void renderchart()
 {
+	// 0 - Малюємо сітку за допомогою функції drawLine
+	// 0.1 - рамка
+	drawLine(chxmin, chymin, chxmin, chymax, false);
+	drawLine(chxmin, chymax, chxmax, chymax, false);
+	drawLine(chxmax, chymax, chxmax, chymin, false);
+	drawLine(chxmax, chymin, chxmin, chymin, false);
+
+	float deltax = 1;
+	float deltay = 1;
+	int nstepsx = nsteps(chxmin, chxmax, deltax);
+	int nstepsy = nsteps(chymin, chymax, deltay);
+	while (nstepsx > 20)
+	{
+		deltax = deltax * 10;
+		nstepsx = nsteps(chxmin, chxmax, deltax);
+	}
+
+	while (nstepsy > 20)
+	{
+		deltay = deltay * 10;
+		nstepsy = nsteps(chymin, chymax, deltay);
+	}
+
+	//вертикальні лінії
+	float lp = 0;
+	while (lp<chxmax)
+	{		
+		bool da = false;
+		if (lp == 0) da = true;
+		if ((lp>=chxmin) && (lp<=chxmax))
+		drawLine(lp, chymin, lp, chymax, da);
+		lp+=deltax;
+	}
+	lp = -deltax;
+	while (lp > chxmin)
+	{
+		if ((lp >= chxmin) && (lp <= chxmax))
+			drawLine(lp, chymin, lp, chymax, false);
+		lp -= deltax;
+	}
+
+	//горизонтальні лінії
+	lp = 0;
+	while (lp < chymax)
+	{
+		bool da = false;
+		if (lp == 0) da = true;
+		if ((lp >= chymin) && (lp <= chymax))
+			drawLine(chxmin, lp, chxmax, lp, da);
+		lp+=deltay;
+	}
+	lp = -deltay;
+	while (lp > chymin)
+	{
+		if ((lp >= chymin) && (lp <= chymax))
+			drawLine(chxmin, lp, chxmax, lp, false);
+		lp -= deltay;
+	}
+	
 	// 1 - Виділення буферу для зберігання вершин
 
 	//1.0 - відмальовуємо трикутник для перевірки роботи масштабу

@@ -1,10 +1,28 @@
 #version 330 core
 
+vec4 fColor;
 out vec4 FragColor;
 
 uniform vec4 nColor;
+uniform bool isBgColor;
+uniform bool isAxis;
 
 void main()
 {
-	FragColor = nColor;
+
+	if (!isBgColor)
+	{
+		fColor = nColor;
+	}
+	else
+	{
+		fColor = vec4(0.6, 0.6, 0.6, 1.0);
+	}
+	if (isAxis)
+	{
+		fColor = vec4(0.0, 0.0, 1.0, 1.0);
+	}
+	
+	FragColor = fColor;
+
 }
