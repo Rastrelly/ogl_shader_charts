@@ -13,6 +13,7 @@
 
 #include <ctime>
 #include <vector>
+#include <cmath>
 
 
 class Shader

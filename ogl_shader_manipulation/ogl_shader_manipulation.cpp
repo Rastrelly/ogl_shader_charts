@@ -28,13 +28,23 @@ void rendertriangle();
 //МАТЕМАТИЧНІ ФУНКЦІЇ
 
 //розрахунок заданої функції
-float calcFunc(float a, float b, float c, float x)
+float calcFunc(float a, float b, float c, float x, int functp)
 {
-	return a * pow(x, 2) + b * x + c;
+	switch (functp)
+	{
+	case 0:
+	{ return a * pow(x, 2) + b * x + c; break; }
+	case 1:
+	{ return a * pow(x, 3) + b * x + c; break; }
+	case 2:
+	{ return a * sqrt(abs(b*x)) + c; break; }
+	case 3:
+	{ return a * sin(b*x) + c; break; }
+	}
 }
 
 //заповнює вказаний вектор значеннями функції
-void fillChart(float a, float b, float c, float x1, float x2, int steps, std::vector<float>&chartpts,
+void fillChart(float a, float b, float c, float x1, float x2, int steps, int functp, std::vector<float>&chartpts,
 	float &xmin, float &xmax, float &ymin, float &ymax)
 {
 	chartpts.clear();
@@ -43,7 +53,7 @@ void fillChart(float a, float b, float c, float x1, float x2, int steps, std::ve
 	for (int i = 0; i < steps; i++)
 	{
 		float cx = x1 + i * d;
-		float cy = calcFunc(a, b, c, cx);
+		float cy = calcFunc(a, b, c, cx, functp);
 
 		if (i == 0)
 		{
@@ -475,6 +485,35 @@ int main()
 	// ініціюємо генератор випадкових чисел
 	srand(time(NULL));
 
+
+	// -- МАТЕМАТИКА --
+
+	int ar = rand() % 21 - 10;
+	int br = rand() % 21 - 10;
+	int cr = rand() % 21 - 10;
+
+	int x1r = 0;
+	int x2r = 0;
+	
+	while (x1r == x2r)
+	{
+		x1r = (rand() % 1001)*(-1);
+		x2r = rand() % 1001;
+
+		if (x1r > x2r)
+		{
+			int b = x1r;
+			x1r = x2r;
+			x2r = b;
+		}
+	}
+
+	int stpr = rand() % 1000 + 10;
+	int fnctpr = rand() % 4;
+
+	fillChart(ar, br, cr, x1r, x2r, stpr, fnctpr, chvertices, chxmin, chxmax, chymin, chymax);
+
+
 	// -- СТВОРЮЄМО ВІКНО GLFW --
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -497,9 +536,6 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
-	// -- МАТЕМАТИКА --
-	fillChart(10, 2, -7, -10, 10, 100, chvertices, chxmin, chxmax, chymin, chymax);
 
 	// -- НАЛАШТУВАННЯ ЗВОРОТНОГО ВИКЛИКУ --
 	glViewport(0, 0, 800, 600);
