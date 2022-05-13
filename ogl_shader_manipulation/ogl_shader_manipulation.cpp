@@ -161,13 +161,20 @@ void processInput(GLFWwindow *window)
 }
 
 //ФУНКЦІЇ РЕНДЕРІНГУ
+
+//оновлює значення уніформ
+void RefreshUniforms()
+{
+	shad->setVector4f("nColor", shapecolor.r, shapecolor.g, shapecolor.b, 1.0f);
+	shad->setMatrix4f("projection", proj);
+}
+
+//викликає підготовку шейдерів
 void PrepShaders(const char* vertexPath, const char* fragmentPath)
 {
 	delete(shad);
 	shad=new Shader(vertexPath, fragmentPath);
 	shad->use();
-	shad->setVector4f("nColor", shapecolor.r, shapecolor.g, shapecolor.b, 1.0f);
-	shad->setMatrix4f("projection",proj);
 }
 
 void drawLine(float x1, float y1, float x2, float y2, bool axis)
@@ -283,6 +290,9 @@ void renderchart()
 			drawLine(chxmin, lp, chxmax, lp, false);
 		lp -= deltay;
 	}
+
+	//відновлюємо уніформи
+	RefreshUniforms();
 	
 	// 1 - Виділення буферу для зберігання вершин
 
@@ -338,6 +348,9 @@ void renderchart()
 
 void rendertriangle()
 {
+
+	RefreshUniforms();
+
 	// 1 - Виділення буферу для зберігання вершин
 
 	//1.1 - генеруємо дані
@@ -389,6 +402,8 @@ void rendertriangle()
 
 void renderrectangle()
 {
+
+	RefreshUniforms();
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -444,7 +459,6 @@ void renderblock()
 	if (needshaderrefresh)
 	{
 		setproj(drawmode);
-		PrepShaders("vert_shader.gls", "frag_shader.gls");
 		needshaderrefresh = false;		
 	}
 
@@ -490,6 +504,9 @@ int main()
 	// -- НАЛАШТУВАННЯ ЗВОРОТНОГО ВИКЛИКУ --
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	//побудова шейдерів
+	PrepShaders("vert_shader.gls", "frag_shader.gls");
 
 	// -- ЗАПУСК ГОЛОВНОГО ЦИКЛУ --
 	while (!glfwWindowShouldClose(window))
